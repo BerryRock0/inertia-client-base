@@ -120,8 +120,12 @@ public class UIUtils {
         return realString.toString();
     }
 
+    public static long getMillis() {
+        return SDLTimer.SDL_GetTicks();
+    }
+
     public static Color rainbow(long timeOffset, float speed) {
-        double time = (SDLTimer.SDL_GetTicks() * 1000) * speed * 75;
+        double time = (getMillis() / 1000.0) * speed * 75;
         float hue = (float) (((time + timeOffset) % 360) / 360f);
 
         return new Color(Color.HSBtoRGB(hue, 1f, 1f));

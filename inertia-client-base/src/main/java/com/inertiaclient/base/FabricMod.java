@@ -8,4 +8,5 @@ public class FabricMod implements ClientModInitializer {
     public void onInitializeClient() {
         InertiaBase.instance.initialize();
     }
+
 }

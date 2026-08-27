@@ -10,11 +10,13 @@ import com.inertiaclient.base.mixin.mixins.accessors.FrontendGpuDeviceAccessor;
 import com.inertiaclient.base.mixin.mixins.accessors.FrontendGpuSurfaceAccessor;
 import com.inertiaclient.base.mixin.mixins.accessors.VulkanGpuSurfaceAccessor;
 import com.inertiaclient.base.render.CachedFrameBuffer;
+import com.inertiaclient.base.render.GenericRender;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
 import io.github.humbleui.skija.*;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VK10;
@@ -31,7 +33,9 @@ public class SkiaVulkanInstance {
     @Getter
     private static HashMap<Long, Image> skiaNativeImages = new HashMap<>();
 
-    private CachedFrameBuffer frameBuffer;
+    private CachedFrameBuffer.TwoDDCachedFrameBuffer frameBuffer;
+    @Setter
+    private GenericRender skiaDraw;
     @Getter
     private Surface surface;
     @Getter
@@ -48,15 +52,22 @@ public class SkiaVulkanInstance {
     @EventTarget
     private final EventListener<ResolutionChangeEvent> resolutionChangeListener = this::onEvent;
 
-    private SkiaVulkanInstance(int width, int height) {
-        this.frameBuffer = new CachedFrameBuffer();
+    private SkiaVulkanInstance(int width, int height, GenericRender skiaDraw) {
+        this.frameBuffer = new CachedFrameBuffer.TwoDDCachedFrameBuffer();
+        this.frameBuffer.setRenderer((minecraftGraphics, mouseX, mouseY, delta) -> {
+            SkiaVulkanInstance.skiaDirectContext.resetAll();
+            this.canvas.clear(0x00000000);
+            this.skiaDraw.render(minecraftGraphics, mouseX, mouseY, delta);
+            SkiaVulkanInstance.skiaDirectContext.flush();
+        });
         this.resize(width, height);
+        this.skiaDraw = skiaDraw;
 
         EventManager.register(this);
     }
 
-    public SkiaVulkanInstance() {
-        this(InertiaBase.mc.getWindow().getWidth(), InertiaBase.mc.getWindow().getHeight());
+    public SkiaVulkanInstance(GenericRender drawWithSkia) {
+        this(InertiaBase.mc.getWindow().getWidth(), InertiaBase.mc.getWindow().getHeight(), drawWithSkia);
     }
 
     public void resize(int width, int height) {
@@ -103,19 +114,10 @@ public class SkiaVulkanInstance {
         this.frameBuffer.setFps(fps);
     }
 
-    public void setup(GuiGraphicsExtractor graphics, Runnable draw) {
-
-        this.frameBuffer.setRenderer(() -> {
-            SkiaVulkanInstance.skiaDirectContext.resetAll();
-            this.canvas.clear(0x00000000);
-            draw.run();
-            SkiaVulkanInstance.skiaDirectContext.flush();
-
-        });
-        this.frameBuffer.drawWithRenderer();
+    public void drawAndRender(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta) {
+        this.frameBuffer.drawWithRenderer(graphics, mouseX, mouseY, delta);
         this.frameBuffer.renderCachedImage(graphics);
     }
-
 
     public static void makeDirectContext() {
         long instanceProcAddr = VK.getFunctionProvider().getFunctionAddress("vkGetInstanceProcAddr");

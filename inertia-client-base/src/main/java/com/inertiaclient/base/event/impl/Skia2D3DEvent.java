@@ -2,7 +2,6 @@ package com.inertiaclient.base.event.impl;
 
 import com.inertiaclient.base.event.Event;
 import com.inertiaclient.base.render.skia.CanvasWrapper;
-import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -16,7 +15,6 @@ public class Skia2D3DEvent extends Event {
 
 
     private CanvasWrapper canvas;
-    private GuiGraphicsExtractor drawContext;
-    private PoseStack matrices;
+    private GuiGraphicsExtractor graphics;
     private float tickDelta;
 }

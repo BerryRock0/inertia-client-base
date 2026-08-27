@@ -54,15 +54,14 @@ public class SkiaNativeRender {
     private float cachedNativeHeight;
 
     private static final GameRenderState gameRenderState = new GameRenderState();
-    private static final GuiRenderer guiRenderer;
-    private static final FeatureRenderDispatcher featureRenderDispatcher;
-
-    static {
-        featureRenderDispatcher = new FeatureRenderDispatcher(InertiaBase.mc.gameRenderer.renderBuffers(), InertiaBase.mc.getModelManager(), InertiaBase.mc.getAtlasManager(), InertiaBase.mc.font, gameRenderState);
-        guiRenderer = new GuiRenderer(gameRenderState.guiRenderState, featureRenderDispatcher, List.of(new GuiEntityRenderer(Minecraft.getInstance().getEntityRenderDispatcher()), new GuiSkinRenderer(), new GuiBookModelRenderer(), new GuiBannerResultRenderer(InertiaBase.mc.getAtlasManager()), new GuiProfilerChartRenderer()));
-    }
+    private static GuiRenderer guiRenderer;
+    private static FeatureRenderDispatcher featureRenderDispatcher;
 
     public void update() {
+        if (guiRenderer == null) {
+            featureRenderDispatcher = new FeatureRenderDispatcher(InertiaBase.mc.gameRenderer.renderBuffers(), InertiaBase.mc.getModelManager(), InertiaBase.mc.getAtlasManager(), InertiaBase.mc.font, gameRenderState);
+            guiRenderer = new GuiRenderer(gameRenderState.guiRenderState, featureRenderDispatcher, List.of(new GuiEntityRenderer(Minecraft.getInstance().getEntityRenderDispatcher()), new GuiSkinRenderer(), new GuiBookModelRenderer(), new GuiBannerResultRenderer(InertiaBase.mc.getAtlasManager()), new GuiProfilerChartRenderer()));
+        }
         this.cachedNativeWidth = this.nativeWidth.get();
         this.cachedNativeHeight = this.nativeHeight.get();
 
@@ -89,7 +88,7 @@ public class SkiaNativeRender {
             this.setImage();
         }
         {
-            RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(frameBuffer.getColorTexture(), this.gameRenderState.guiRenderState.clearColorOverride, frameBuffer.getDepthTexture(), 0, 0, 0, frameBuffer.width, frameBuffer.height);
+            RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(frameBuffer.getColorTexture(), this.gameRenderState.guiRenderState.clearColorOverride, frameBuffer.getDepthTexture(), 0, 0, 0, frameBuffer.width, frameBuffer.height, 0);
             gameRenderState.guiRenderState.reset();
 
             GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(InertiaBase.mc, gameRenderState.guiRenderState, -999, -999);

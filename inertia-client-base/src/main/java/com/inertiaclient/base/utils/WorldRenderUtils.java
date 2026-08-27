@@ -1,14 +1,22 @@
 package com.inertiaclient.base.utils;
 
+import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.mixin.custominterfaces.BlockEntityRenderDispatcherInterface;
 import com.inertiaclient.base.mixin.mixins.accessors.FrustumAccessor;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.renderpearl.api.pipeline.*;
 import lombok.Getter;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
@@ -18,6 +26,8 @@ import org.joml.FrustumIntersection;
 import org.joml.Vector3f;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Stack;
 
 import static com.inertiaclient.base.InertiaBase.mc;
@@ -28,6 +38,23 @@ public class WorldRenderUtils {//3d render utils
     public static boolean frustumCheck = true;//probably wont use but you can disable and reenable it
     @Getter
     private static Stack<Boolean> subtractCamera = new Stack<>();
+
+
+    //public static void enableGL() {
+    //TODO:
+        /*RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableCull();
+        RenderSystem.disableDepthTest();*/
+    //}
+
+    public static final RenderPipeline DEBUG_TRIANGLE_FAN_PIPELINE = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET).withLocation("pipeline/debug_triangle_fan_inertia").withCull(false).withDepthStencilState(Optional.empty()).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR).withPrimitiveTopology(PrimitiveTopology.TRIANGLE_STRIP).build());
+    private static final RenderType DEBUG_TRIANGLE_FAN = RenderType.create("debug_triangle_fan_inertia", RenderSetup.builder(DEBUG_TRIANGLE_FAN_PIPELINE).createRenderSetup());
+
+
+    public static final RenderPipeline LINES_TRANSLUCENT_PIPELINE = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET).withLocation("pipeline/lines_translucent_inertia").withCull(false).withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT)).withDepthStencilState(Optional.empty()).build());
+    public static final RenderType LINES_TRANSLUCENT = RenderType.create("lines_translucent_inertia", RenderSetup.builder(LINES_TRANSLUCENT_PIPELINE).createRenderSetup());
+
 
     //don't use this(I mean you can but there will be float precision errors when far from spawn /teleport IKnowImEZ 10000000 90 10000000)
     public static void subtractCameraPosition(PoseStack matrices) {
@@ -77,15 +104,7 @@ public class WorldRenderUtils {//3d render utils
         return entity.yRotO + ((entity.getYRot() - entity.yRotO) * delta);
     }
 
-    public static void enableGL() {
-        //TODO:
-        /*RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
-        RenderSystem.disableDepthTest();*/
-    }
-
-    public static void drawEntityESP(PoseStack matrices, Entity entity, float delta, boolean fill, boolean outline, Color color) {
+    public static void drawEntityESP(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, Entity entity, float delta, boolean fill, boolean outline, Color color) {
         double renderX = getEntityInterpolatedX(entity, delta);
         double renderY = getEntityInterpolatedY(entity, delta);
         double renderZ = getEntityInterpolatedZ(entity, delta);
@@ -98,19 +117,19 @@ public class WorldRenderUtils {//3d render utils
         double maxY = entity.getBoundingBox().maxY - entity.getY() + renderY;
         double maxZ = entity.getBoundingBox().maxZ - entity.getZ() + renderZ;
         if (fill) {
-            renderBoxRaw(matrices, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
+            renderBoxRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
         }
         if (outline) {
-            renderOutlineRaw(matrices, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
+            renderOutlineRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
         }
     }
 
 
-    public static void drawBoxESP(PoseStack matrices, AABB box, boolean fill, boolean outline, Color color) {
-        WorldRenderUtils.drawBoxESP(matrices, BlockPos.ZERO, box, fill, outline, color);
+    public static void drawBoxESP(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, AABB box, boolean fill, boolean outline, Color color) {
+        WorldRenderUtils.drawBoxESP(poseStack, submitNodeStorage, BlockPos.ZERO, box, fill, outline, color);
     }
 
-    public static void drawBoxESP(PoseStack matrices, BlockPos blockPos, AABB box, boolean fill, boolean outline, Color color) {
+    public static void drawBoxESP(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, BlockPos blockPos, AABB box, boolean fill, boolean outline, Color color) {
         double minX = blockPos.getX() + box.minX;
         double minY = blockPos.getY() + box.minY;
         double minZ = blockPos.getZ() + box.minZ;
@@ -118,55 +137,111 @@ public class WorldRenderUtils {//3d render utils
         double maxY = blockPos.getY() + box.maxY;
         double maxZ = blockPos.getZ() + box.maxZ;
         if (fill) {
-            renderBoxRaw(matrices, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
+            renderBoxRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
         }
         if (outline) {
-            renderOutlineRaw(matrices, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
+            renderOutlineRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
         }
     }
 
-    public static void renderBoxRaw(PoseStack matrices, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
-        //TODO:
-        /*if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
+    public static void renderBoxRaw(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
+        if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
             if (shouldSubtractCameraPosition()) {
-                minX -= mc.gameRenderer.getMainCamera().getPosition().x();
-                minY -= mc.gameRenderer.getMainCamera().getPosition().y();
-                minZ -= mc.gameRenderer.getMainCamera().getPosition().z();
-                maxX -= mc.gameRenderer.getMainCamera().getPosition().x();
-                maxY -= mc.gameRenderer.getMainCamera().getPosition().y();
-                maxZ -= mc.gameRenderer.getMainCamera().getPosition().z();
+                minX -= mc.gameRenderer.mainCamera().position().x();
+                minY -= mc.gameRenderer.mainCamera().position().y();
+                minZ -= mc.gameRenderer.mainCamera().position().z();
+                maxX -= mc.gameRenderer.mainCamera().position().x();
+                maxY -= mc.gameRenderer.mainCamera().position().y();
+                maxZ -= mc.gameRenderer.mainCamera().position().z();
             }
 
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+            float finalMinX = (float) minX;
+            float finalMinY = (float) minY;
+            float finalMinZ = (float) minZ;
+            float finalMaxX = (float) maxX;
+            float finalMaxY = (float) maxY;
+            float finalMaxZ = (float) maxZ;
 
-            Tesselator tessellator = RenderSystem.renderThreadTesselator();
-            BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
-            ShapeRenderer.addChainedFilledBoxVertices(matrices, bufferBuilder, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
-            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        }*/
+            submitNodeStorage.submitCustomGeometry(poseStack, DEBUG_TRIANGLE_FAN, (pose, buffer) -> {
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha);
+            });
+        }
     }
 
-    public static void renderOutlineRaw(PoseStack matrices, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float lineWidth, float red, float green, float blue, float alpha) {
-        //TODO:
-        /*if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
+    public static void renderOutlineRaw(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float lineWidth, float red, float green, float blue, float alpha) {
+        if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
             if (shouldSubtractCameraPosition()) {
-                minX -= mc.gameRenderer.getMainCamera().getPosition().x();
-                minY -= mc.gameRenderer.getMainCamera().getPosition().y();
-                minZ -= mc.gameRenderer.getMainCamera().getPosition().z();
-                maxX -= mc.gameRenderer.getMainCamera().getPosition().x();
-                maxY -= mc.gameRenderer.getMainCamera().getPosition().y();
-                maxZ -= mc.gameRenderer.getMainCamera().getPosition().z();
+                minX -= mc.gameRenderer.mainCamera().position().x();
+                minY -= mc.gameRenderer.mainCamera().position().y();
+                minZ -= mc.gameRenderer.mainCamera().position().z();
+                maxX -= mc.gameRenderer.mainCamera().position().x();
+                maxY -= mc.gameRenderer.mainCamera().position().y();
+                maxZ -= mc.gameRenderer.mainCamera().position().z();
             }
 
-            RenderSystem.setShader(CoreShaders.RENDERTYPE_LINES);
-            RenderSystem.lineWidth(lineWidth);
+            float finalMinX = (float) minX;
+            float finalMinY = (float) minY;
+            float finalMinZ = (float) minZ;
+            float finalMaxX = (float) maxX;
+            float finalMaxY = (float) maxY;
+            float finalMaxZ = (float) maxZ;
 
-            Tesselator tessellator = RenderSystem.renderThreadTesselator();
-            BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-            ShapeRenderer.renderLineBox(matrices, bufferBuilder, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
-            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        }*/
+            submitNodeStorage.submitCustomGeometry(poseStack, LINES_TRANSLUCENT, (pose, buffer) -> {
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+            });
+        }
     }
 
     //allows rendering more than 64 blocks
@@ -222,6 +297,26 @@ public class WorldRenderUtils {//3d render utils
             return true;
         }
         return subtractCamera.peek();
+    }
+
+    public static ArrayList<BlockEntity> getAllBlockEntities() {
+        ArrayList<BlockEntity> blockEntities = new ArrayList<>();
+
+        int viewDistance = InertiaBase.mc.options.renderDistance().get();
+        int playerChunkX = SectionPos.blockToSectionCoord(InertiaBase.mc.player.getBlockX());
+        int playerChunkZ = SectionPos.blockToSectionCoord(InertiaBase.mc.player.getBlockZ());
+
+        for (int x = -viewDistance; x <= viewDistance; x++) {
+            for (int z = -viewDistance; z <= viewDistance; z++) {
+                var chunk = mc.level.getChunk(playerChunkX + x, playerChunkZ + z);
+
+                if (chunk != null) {
+                    blockEntities.addAll(chunk.getBlockEntities().values());
+                }
+            }
+        }
+
+        return blockEntities;
     }
 
 

@@ -5,7 +5,8 @@ import com.inertiaclient.base.utils.TimerUtil;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.textures.*;
+import com.mojang.renderpearl.api.textures.AddressMode;
+import com.mojang.renderpearl.api.textures.FilterMode;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,8 +23,6 @@ public class CachedFrameBuffer {
     protected TimerUtil fpsTimer = new TimerUtil();
     private boolean forceUpdate = false;
 
-    @Setter
-    private Runnable renderer;
 
     public void createFrameBufferIfNeeded(int width, int height, boolean stencil, boolean depth) {
         if (this.framebuffer == null) {
@@ -49,18 +48,6 @@ public class CachedFrameBuffer {
         if (this.framebuffer != null) {
             this.framebuffer.resize(width, height);
             this.forceUpdate = true;
-        }
-    }
-
-    public void drawWithRenderer() {
-        if (this.renderer != null) {
-            if (this.shouldUpdate()) {
-
-                //not needed if skia clears?!?!?
-                //RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(this.framebuffer.getColorTexture(), GuiRenderer.CLEAR_COLOR, this.framebuffer.getDepthTexture(), 0.0);
-
-                this.renderer.run();
-            }
         }
     }
 
@@ -98,7 +85,20 @@ public class CachedFrameBuffer {
         return false;
     }
 
-    private void blitPremultiInertia(GuiGraphicsExtractor graphics, GpuTextureView textureView, GpuSampler sampler, int x0, int y0, int x1, int y1, float u0, float u1, float v0, float v1) {
+    public static class TwoDDCachedFrameBuffer extends CachedFrameBuffer {
 
+        @Setter
+        protected GenericRender renderer;
+
+        public void drawWithRenderer(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta) {
+            if (this.renderer != null) {
+                if (this.shouldUpdate()) {
+                    //not needed if skia clears?!?!?
+                    //RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(this.framebuffer.getColorTexture(), GuiRenderer.CLEAR_COLOR, this.framebuffer.getDepthTexture(), 0.0);
+                    this.renderer.render(graphics, mouseX, mouseY, delta);
+                }
+            }
+        }
     }
+
 }

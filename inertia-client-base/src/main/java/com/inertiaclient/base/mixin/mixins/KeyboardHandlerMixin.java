@@ -24,7 +24,8 @@ public class KeyboardHandlerMixin {
         if (InertiaBase.mc.gui.screen() != null) {
             return;
         }
-        InputConstants.Key input = InputUtils.fromKeyCode(event.shortcutKey());
+        
+        InputConstants.Key input = InputUtils.fromKeyCode(event.key());//scancode
         if (!InputUtils.isScancodePressed(SDLScancode.SDL_SCANCODE_F3)) {
             if (InertiaBase.instance.getSettings().getClickGuiSettings().getKeybind().getValue() == input) {
                 InertiaBase.mc.gui.setScreen(ModernClickGui.MODERN_CLICK_GUI);
@@ -36,7 +37,7 @@ public class KeyboardHandlerMixin {
                 }
             }
 
-            KeyActionEvent inertiaKeyEvent = new KeyActionEvent(event.shortcutKey(), event.key(), action == KeyActionEvent.MINECRAFT_ACTION_PRESS || action == KeyActionEvent.MINECRAFT_ACTION_REPEAT, action);//could use != GLFW_RELEASE release, but this is more clear
+            KeyActionEvent inertiaKeyEvent = new KeyActionEvent(event.keycode(), event.key(), action == KeyActionEvent.MINECRAFT_ACTION_PRESS || action == KeyActionEvent.MINECRAFT_ACTION_REPEAT, action);//could use != GLFW_RELEASE release, but this is more clear
             EventManager.fire(inertiaKeyEvent);
             if (inertiaKeyEvent.isCancelled()) {
                 callbackInfo.cancel();

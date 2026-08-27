@@ -68,7 +68,6 @@ public class HudManager {
                 independentGroup.addComponent(hudComponent);
             }
         }
-
     }
 
     private HudGroup createTopLeft() {
@@ -120,41 +119,34 @@ public class HudManager {
         }
     }
 
-    public void render(GuiGraphicsExtractor graphics, float screenWidth, float screenHeight, boolean editor) {
-        Runnable draw = () -> {
-            for (HudGroup hudGroup : this.groups) {
-                hudGroup.doStuff(0, 0, 0);
-            }
-
-            for (HudGroup hudGroup : this.groups) {
-                if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.LEFT) {
-                    hudGroup.setX(hudGroup.getLeftAlignmentPercentage() * screenWidth);
-                } else if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.MIDDLE) {
-                    hudGroup.setX((hudGroup.getMiddleXAlignmentPercentage() * screenWidth) - (hudGroup.getScaledWidth() / 2f));
-                } else if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.RIGHT) {
-                    hudGroup.setX((hudGroup.getRightAlignmentPercentage() * screenWidth) - hudGroup.getScaledWidth());
-                }
-
-                if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.TOP) {
-                    hudGroup.setY(hudGroup.getTopAlignmentPercentage() * screenHeight);
-                } else if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.MIDDLE) {
-                    hudGroup.setY((hudGroup.getMiddleYAlignmentPercentage() * screenHeight) - (hudGroup.getScaledHeight() / 2f));
-                } else if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.BOTTOM) {
-                    hudGroup.setY((hudGroup.getBottomAlignmentPercentage() * screenHeight) - hudGroup.getScaledHeight());
-                }
-            }
-
-            this.skiaInstance.getCanvas().save();
-            for (HudGroup hudGroup : this.groups) {
-                hudGroup.renderGroup(graphics, 0, 0, 0, editor, this.skiaInstance.getCanvasWrapper());
-            }
-            this.skiaInstance.getCanvas().restore();
-        };
-        if (editor) {
-            draw.run();
-        } else {
-            skiaInstance.setup(graphics, draw);
+    public void renderGroups(GuiGraphicsExtractor graphics, float screenWidth, float screenHeight, boolean editor) {
+        for (HudGroup hudGroup : this.groups) {
+            hudGroup.doStuff(0, 0, 0);
         }
+
+        for (HudGroup hudGroup : this.groups) {
+            if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.LEFT) {
+                hudGroup.setX(hudGroup.getLeftAlignmentPercentage() * screenWidth);
+            } else if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.MIDDLE) {
+                hudGroup.setX((hudGroup.getMiddleXAlignmentPercentage() * screenWidth) - (hudGroup.getScaledWidth() / 2f));
+            } else if (hudGroup.getComponentsXAlignmentState() == HudGroup.XAlignment.RIGHT) {
+                hudGroup.setX((hudGroup.getRightAlignmentPercentage() * screenWidth) - hudGroup.getScaledWidth());
+            }
+
+            if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.TOP) {
+                hudGroup.setY(hudGroup.getTopAlignmentPercentage() * screenHeight);
+            } else if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.MIDDLE) {
+                hudGroup.setY((hudGroup.getMiddleYAlignmentPercentage() * screenHeight) - (hudGroup.getScaledHeight() / 2f));
+            } else if (hudGroup.getComponentsYAlignmentState() == HudGroup.YAlignment.BOTTOM) {
+                hudGroup.setY((hudGroup.getBottomAlignmentPercentage() * screenHeight) - hudGroup.getScaledHeight());
+            }
+        }
+
+        this.skiaInstance.getCanvas().save();
+        for (HudGroup hudGroup : this.groups) {
+            hudGroup.renderGroup(graphics, 0, 0, 0, editor, this.skiaInstance.getCanvasWrapper());
+        }
+        this.skiaInstance.getCanvas().restore();
 
     }
 

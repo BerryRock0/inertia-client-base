@@ -37,6 +37,7 @@
     "accessors.FrontendGpuDeviceAccessor",
     "accessors.FrontendGpuSurfaceAccessor",
     "accessors.FrustumAccessor",
+    "accessors.GameRendererAccessor",
     "accessors.MultiPlayerGameModeAccessor",
     "accessors.RenderTargetAccessor",
     "accessors.VulkanGpuSurfaceAccessor"

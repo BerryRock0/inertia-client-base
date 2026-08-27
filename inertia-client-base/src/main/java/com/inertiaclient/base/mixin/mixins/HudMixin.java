@@ -4,6 +4,7 @@ import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.event.EventManager;
 import com.inertiaclient.base.event.impl._2DEvent;
 import com.inertiaclient.base.hud.HudEditorScreen;
+import com.inertiaclient.base.render._2D3DRender;
 import com.inertiaclient.base.render.skia.SkiaVulkanInstance;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -21,20 +22,23 @@ public abstract class HudMixin {
     private SkiaVulkanInstance inertiaClient$skiaInstance;
 
     //TODO: fix me
-    /*@Inject(method = "render", at = @At("HEAD"))
-    private void render(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo callbackInfo) {
-        _2D3DRender.render(tickCounter.getGameTimeDeltaPartialTick(false), context.pose(), true);
-    }*/
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        _2D3DRender.render(deltaTracker.getGameTimeDeltaPartialTick(false), null, true);
+    }
 
     @Inject(method = "extractHotbarAndDecorations", at = @At("HEAD"))
     private void renderMainHud(final GuiGraphicsExtractor graphics, final DeltaTracker deltaTracker, CallbackInfo callbackInfo) {
-        EventManager.register(new _2DEvent(graphics, deltaTracker));
+        EventManager.fire(new _2DEvent(graphics, deltaTracker));
         if (!(InertiaBase.mc.gui.screen() instanceof HudEditorScreen)) {
             if (this.inertiaClient$skiaInstance == null) {
-                this.inertiaClient$skiaInstance = new SkiaVulkanInstance();
+                this.inertiaClient$skiaInstance = new SkiaVulkanInstance((graphics1, mouseX, mouseY, delta) -> {
+                    InertiaBase.instance.getHudManager().beforeRender(this.inertiaClient$skiaInstance, false);
+                    InertiaBase.instance.getHudManager().renderGroups(graphics1, graphics.guiWidth(), graphics.guiHeight(), false);
+                });
             }
-            InertiaBase.instance.getHudManager().beforeRender(this.inertiaClient$skiaInstance, false);
-            InertiaBase.instance.getHudManager().render(graphics, graphics.guiWidth(), graphics.guiHeight(), false);
+
+            this.inertiaClient$skiaInstance.drawAndRender(graphics, -999, -999, deltaTracker.getGameTimeDeltaPartialTick(false));
         }
     }
 

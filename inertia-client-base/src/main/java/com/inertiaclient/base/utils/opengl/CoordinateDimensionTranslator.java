@@ -1,7 +1,22 @@
 package com.inertiaclient.base.utils.opengl;
 
+import com.inertiaclient.base.InertiaBase;
+import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.render.GuiRenderer;
+import net.minecraft.client.gui.render.pip.*;
+import net.minecraft.client.renderer.Projection;
+import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.GameRenderState;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 //TODO: fixme
 public class CoordinateDimensionTranslator {
@@ -13,17 +28,17 @@ public class CoordinateDimensionTranslator {
     private static float scaledHeight;
 
 
-    public static void setMatrixInformation(Matrix4f worldPositionPositionMatrix) {
-        /*CoordinateDimensionTranslator.cachedProjectionMatrix.set(RenderSystem.getProjectionMatrix());
-        CoordinateDimensionTranslator.cachedWorldSpacePositionMatrix.set(worldPositionPositionMatrix);
+    public static void setMatrixInformation(Matrix4f viewRotationMatrix, Matrix4f projectionMatrix) {
+        CoordinateDimensionTranslator.cachedProjectionMatrix.set(projectionMatrix);
+        CoordinateDimensionTranslator.cachedWorldSpacePositionMatrix.set(viewRotationMatrix);
 
         CoordinateDimensionTranslator.scaledWidth = InertiaBase.mc.getWindow().getGuiScaledWidth();
-        CoordinateDimensionTranslator.scaledHeight = InertiaBase.mc.getWindow().getGuiScaledHeight();*/
+        CoordinateDimensionTranslator.scaledHeight = InertiaBase.mc.getWindow().getGuiScaledHeight();
     }
 
     //xyz should not subtract camera position
     public static ScreenPosition toScreen(double x, double y, double z) {
-        /*Vector4f transformedCoordinates = new Vector4f((float) (x - InertiaBase.mc.getEntityRenderDispatcher().camera.getPosition().x), (float) (y - InertiaBase.mc.getEntityRenderDispatcher().camera.getPosition().y), (float) (z - InertiaBase.mc.getEntityRenderDispatcher().camera.getPosition().z), 1);
+        Vector4f transformedCoordinates = new Vector4f((float) (x - InertiaBase.mc.gameRenderer.mainCamera().position().x), (float) (y - InertiaBase.mc.gameRenderer.mainCamera().position().y), (float) (z - InertiaBase.mc.gameRenderer.mainCamera().position().z), 1);
         transformedCoordinates.mul(CoordinateDimensionTranslator.cachedWorldSpacePositionMatrix);
 
         Vector3f projectionOutput = new Vector3f();
@@ -45,8 +60,7 @@ public class CoordinateDimensionTranslator {
             isPositionOnTheScreen = false;
         }
 
-        return new ScreenPosition(screenXPosition, screenYPosition, screenZPosition, isPositionOnTheScreen);*/
-        return null;
+        return new ScreenPosition(screenXPosition, screenYPosition, screenZPosition, isPositionOnTheScreen);
     }
 
     public static void setupOverlayRendering() {
@@ -62,30 +76,31 @@ public class CoordinateDimensionTranslator {
         Lighting.setupFor3DItems();*/
     }
 
-    public static void setupOverlayRendering(Runnable runnable) {
-        /*Matrix4f oldProjectionMatrix = new Matrix4f(RenderSystem.getProjectionMatrix());
-        ProjectionType oldProjectionType = RenderSystem.getProjectionType();
-        Matrix4f oldModelViewMatrix = RenderSystem.getModelViewMatrix();
+    private static final Projection guiProjection = new Projection();
+    private static final ProjectionMatrixBuffer guiProjectionMatrixBuffer = new ProjectionMatrixBuffer("gui");
 
-        //GameRenderer
-        Window window = InertiaBase.mc.getWindow();
-        RenderSystem.clear(GlConst.GL_DEPTH_BUFFER_BIT);
-        Matrix4f matrix4f = new Matrix4f().setOrtho(0.0f, (float) ((double) window.getWidth() / window.getGuiScale()), (float) ((double) window.getHeight() / window.getGuiScale()), 0.0f, 1000.0f, 21000.0f);
-        RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC);
-        Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
-        matrixStack.pushMatrix();
-        //matrixStack.identity();
-        matrixStack.translate(0.0f, 0.0f, -11000.0f);
-        Lighting.setupFor3DItems();
+    private static final GameRenderState gameRenderState = new GameRenderState();
+    private static GuiRenderer guiRenderer;
+    private static FeatureRenderDispatcher featureRenderDispatcher;
 
-        runnable.run();
+    public static void setupOverlayRendering(Consumer<GuiGraphicsExtractor> runnable) {
+        if (guiRenderer == null) {
+            featureRenderDispatcher = new FeatureRenderDispatcher(InertiaBase.mc.gameRenderer.renderBuffers(), InertiaBase.mc.getModelManager(), InertiaBase.mc.getAtlasManager(), InertiaBase.mc.font, gameRenderState);
+            guiRenderer = new GuiRenderer(gameRenderState.guiRenderState, featureRenderDispatcher, List.of(new GuiEntityRenderer(Minecraft.getInstance().getEntityRenderDispatcher()), new GuiSkinRenderer(), new GuiBookModelRenderer(), new GuiBannerResultRenderer(InertiaBase.mc.getAtlasManager()), new GuiProfilerChartRenderer()));
+        }
 
-        //GameRenderer.render
+        var oldProjectionMatrix = RenderSystem.getProjectionMatrixBuffer();
+        var oldProjectionType = RenderSystem.getProjectionType();
+        gameRenderState.guiRenderState.reset();
+        GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(InertiaBase.mc, gameRenderState.guiRenderState, -999, -999);
+
+        runnable.accept(graphics);
+
+        //this sets projection
+        guiRenderer.render();
+        guiRenderer.endFrame();
+
         RenderSystem.setProjectionMatrix(oldProjectionMatrix, oldProjectionType);
-        Matrix4fStack renderSystemMatrixStack = RenderSystem.getModelViewStack();
-        renderSystemMatrixStack.identity();
-        renderSystemMatrixStack.mul(oldModelViewMatrix);
-        renderSystemMatrixStack.popMatrix();//pushed in CoordinateDimensionTranslator.setupOverlayRendering*/
     }
 
     public static class ScreenPosition {

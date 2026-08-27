@@ -34,7 +34,6 @@ public class HudEditor {
     }
 
     public void render(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta, CanvasWrapper canvas) {
-
         if (draggingGroup != null) {
 
             boolean isLeftShiftDown = InputUtils.isScancodePressed(SDLKeycode.SDLK_LSHIFT);
@@ -166,7 +165,7 @@ public class HudEditor {
                 }
             }
         }
-        InertiaBase.instance.getHudManager().render(graphics, parentScreen.width, parentScreen.height, true);
+        InertiaBase.instance.getHudManager().renderGroups(graphics, parentScreen.width, parentScreen.height, true);
     }
 
     public boolean mouseClicked(float mouseX, float mouseY, ButtonIdentifier button) {

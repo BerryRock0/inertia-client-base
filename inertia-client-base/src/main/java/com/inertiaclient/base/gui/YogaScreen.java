@@ -29,7 +29,39 @@ public abstract class YogaScreen extends BetterScreen {
         super(title);
 
         if (skiaInstance == null) {
-            skiaInstance = new SkiaVulkanInstance();
+            skiaInstance = new SkiaVulkanInstance((graphics, mouseX, mouseY, delta) -> {
+                //calculate "every" components width, then set their positions
+                root.beforeLayoutCalculations(graphics, mouseX, mouseY, delta, skiaInstance.getCanvasWrapper());
+                //TODO: only on window size change
+                YGNodeCalculateLayout(root.getNativeNode(), width, height, YGDirectionLTR);
+                root.setWidths(0, 0, graphics, mouseX, mouseY, delta);
+                root.setGlobalPositions(0, 0, graphics, mouseX, mouseY, delta);
+                CursorUtils.Cursor cursor = null;
+                YogaNode hoveredComponent = root.getHov(mouseX, mouseY);
+                YogaNode iteratingParent = hoveredComponent;
+                while (iteratingParent != null) {
+
+                    if (cursor == null && iteratingParent.getHoverCursor() != null) {
+                        cursor = iteratingParent.getHoverCursor();
+                    }
+
+                    iteratingParent.setShowHoveredEffects(true);
+                    iteratingParent = iteratingParent.getParent();
+                }
+
+                if (InertiaBase.instance.getSettings().getClickGuiSettings().getCustomCursors().getValue()) {
+                    if (cursor != null) {
+                        CursorUtils.setCursor(cursor);
+                    } else {
+                        CursorUtils.setCursor(CursorUtils.Cursor.ARROW);
+                    }
+                }
+
+                root.beforeDraw(graphics, mouseX, mouseY, 0, 0, delta, skiaInstance.getCanvasWrapper());
+                root.draw(graphics, mouseX, mouseY, 0, 0, delta, skiaInstance.getCanvasWrapper());
+
+                root.reset(mouseX, mouseY);
+            });
         }
 
         Yoga.YGConfigSetUseWebDefaults(Yoga.YGConfigGetDefault(), true);
@@ -49,39 +81,7 @@ public abstract class YogaScreen extends BetterScreen {
     public void betterRender(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta) {
         //graphics.fill((int) mouseX, (int) mouseY, (int) mouseX + 5, (int) mouseY + 5, 0xffff0000);
 
-        skiaInstance.setup(graphics, () -> {
-            //calculate "every" components width, then set their positions
-            root.beforeLayoutCalculations(graphics, mouseX, mouseY, delta, skiaInstance.getCanvasWrapper());
-            //TODO: only on window size change
-            YGNodeCalculateLayout(root.getNativeNode(), width, height, YGDirectionLTR);
-            root.setWidths(0, 0, graphics, mouseX, mouseY, delta);
-            root.setGlobalPositions(0, 0, graphics, mouseX, mouseY, delta);
-            CursorUtils.Cursor cursor = null;
-            YogaNode hoveredComponent = root.getHov(mouseX, mouseY);
-            YogaNode iteratingParent = hoveredComponent;
-            while (iteratingParent != null) {
-
-                if (cursor == null && iteratingParent.getHoverCursor() != null) {
-                    cursor = iteratingParent.getHoverCursor();
-                }
-
-                iteratingParent.setShowHoveredEffects(true);
-                iteratingParent = iteratingParent.getParent();
-            }
-
-            if (InertiaBase.instance.getSettings().getClickGuiSettings().getCustomCursors().getValue()) {
-                if (cursor != null) {
-                    CursorUtils.setCursor(cursor);
-                } else {
-                    CursorUtils.setCursor(CursorUtils.Cursor.ARROW);
-                }
-            }
-
-            root.beforeDraw(graphics, mouseX, mouseY, 0, 0, delta, skiaInstance.getCanvasWrapper());
-            root.draw(graphics, mouseX, mouseY, 0, 0, delta, skiaInstance.getCanvasWrapper());
-
-            root.reset(mouseX, mouseY);
-        });
+        skiaInstance.drawAndRender(graphics, mouseX, mouseY, delta);
     }
 
     @Override

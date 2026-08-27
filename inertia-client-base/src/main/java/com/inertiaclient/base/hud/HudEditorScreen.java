@@ -24,8 +24,11 @@ public class HudEditorScreen extends BetterScreen {
     public HudEditorScreen() {
         super(Component.literal(""));
 
-        if (skiaInstance == null) {
-            skiaInstance = new SkiaVulkanInstance();
+        if (this.skiaInstance == null) {
+            this.skiaInstance = new SkiaVulkanInstance((graphics, mouseX, mouseY, delta) -> {
+                this.hudEditor.beforeRender(this.skiaInstance);
+                this.hudEditor.render(graphics, mouseX, mouseY, delta, this.skiaInstance.getCanvasWrapper());
+            });
         }
 
         this.hudEditor = new HudEditor(this);
@@ -33,11 +36,7 @@ public class HudEditorScreen extends BetterScreen {
 
     @Override
     public void betterRender(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta) {
-        hudEditor.beforeRender(this.skiaInstance);
-
-        skiaInstance.setup(graphics, () -> {
-            hudEditor.render(graphics, mouseX, mouseY, delta, skiaInstance.getCanvasWrapper());
-        });
+        this.skiaInstance.drawAndRender(graphics, mouseX, mouseY, delta);
     }
 
     @Override
