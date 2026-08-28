@@ -16,7 +16,6 @@ import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
 import io.github.humbleui.skija.*;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VK10;
@@ -34,7 +33,6 @@ public class SkiaVulkanInstance {
     private static HashMap<Long, Image> skiaNativeImages = new HashMap<>();
 
     private CachedFrameBuffer.TwoDDCachedFrameBuffer frameBuffer;
-    @Setter
     private GenericRender skiaDraw;
     @Getter
     private Surface surface;

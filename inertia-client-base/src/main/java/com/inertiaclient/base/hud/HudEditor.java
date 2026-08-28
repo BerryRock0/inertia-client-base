@@ -13,7 +13,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
-import org.lwjgl.sdl.SDLKeycode;
+import org.lwjgl.sdl.SDLScancode;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class HudEditor {
     public void render(GuiGraphicsExtractor graphics, float mouseX, float mouseY, float delta, CanvasWrapper canvas) {
         if (draggingGroup != null) {
 
-            boolean isLeftShiftDown = InputUtils.isScancodePressed(SDLKeycode.SDLK_LSHIFT);
+            boolean isLeftShiftDown = InputUtils.isScancodePressed(SDLScancode.SDL_SCANCODE_LSHIFT);
 
             Color segmentsColor = new Color(255, 69, 69);
             try (Paint paint = SkiaUtils.createPaintForColor(segmentsColor)) {

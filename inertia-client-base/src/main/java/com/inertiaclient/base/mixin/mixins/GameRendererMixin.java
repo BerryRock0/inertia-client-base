@@ -55,7 +55,7 @@ public abstract class GameRendererMixin {
         AnimationValue.tweenEngine.update(delta);
     }
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render3dHud(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lnet/minecraft/client/renderer/state/OptionsRenderState;Z)V"))
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render3dHud(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lnet/minecraft/client/renderer/state/level/PlayerRenderState;Lnet/minecraft/client/renderer/state/OptionsRenderState;Z)V"))
     private void renderWorld(CallbackInfo ci) {
         CameraRenderState cameraState = this.gameRenderState.levelRenderState.cameraRenderState;
         float worldPartialTicks = this.gameRenderState.levelRenderState.worldPartialTicks;

@@ -47,7 +47,7 @@ public class CoordinateDimensionTranslator {
         float screenXPosition = projectionOutput.x();
         float screenYPosition = InertiaBase.mc.getWindow().getGuiScaledHeight() - projectionOutput.y();
         float screenZPosition = projectionOutput.z();
-        if (screenZPosition > 1) {
+        if (screenZPosition < 0.5f) {
             int bigFactor = 100000;
             screenXPosition = InertiaBase.mc.getWindow().getGuiScaledWidth() - screenXPosition;
             screenYPosition = InertiaBase.mc.getWindow().getGuiScaledHeight() - screenYPosition;
