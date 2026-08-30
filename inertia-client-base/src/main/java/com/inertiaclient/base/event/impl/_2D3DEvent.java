@@ -9,7 +9,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class _2D3DEvent extends Event {
 
     @Getter
-    private GuiGraphicsExtractor drawContext;
+    private GuiGraphicsExtractor graphics;
     @Getter
     private float tickDelta;
 

@@ -1,8 +1,10 @@
 package com.inertiaclient.base.render;
 
+import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.event.EventManager;
 import com.inertiaclient.base.event.impl.Skia2D3DEvent;
 import com.inertiaclient.base.event.impl._2D3DEvent;
+import com.inertiaclient.base.mixin.custominterfaces.GameRendererInterface;
 import com.inertiaclient.base.render.skia.SkiaVulkanInstance;
 import com.inertiaclient.base.utils.opengl.CoordinateDimensionTranslator;
 import net.fabricmc.loader.api.FabricLoader;
@@ -33,8 +35,10 @@ public class _2D3DRender {
             skiaInstance = new SkiaVulkanInstance((graphics1, mouseX, mouseY, delta) -> {
                 EventManager.fire(new Skia2D3DEvent(skiaInstance.getCanvasWrapper(), graphics1, tickDelta));
             });
+            skiaInstance.setFps(() -> InertiaBase.instance.getSettings().getWorldEspFPS().getFpsForCache());
         }
         EventManager.fire(new _2D3DEvent(graphics, tickDelta));
+        ((GameRendererInterface) InertiaBase.mc.gameRenderer).get3DCachedFrameBuffer().renderCachedImage(graphics);
 
         skiaInstance.drawAndRender(graphics, -999, -999, tickDelta);
     }

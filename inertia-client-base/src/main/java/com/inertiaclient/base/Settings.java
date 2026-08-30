@@ -28,6 +28,8 @@ public class Settings {
     private ButtonValueGroup tpsButtonGroup;
     @Getter
     private TPSSettings tpsSettings;
+    @Getter
+    private MaxFPSValue worldEspFPS;
 
 
     public Settings() {
@@ -40,6 +42,8 @@ public class Settings {
 
         this.addGroup(this.tpsButtonGroup = new ButtonValueGroup("tps", ""));
         this.tpsSettings = new TPSSettings(this.tpsButtonGroup);
+
+        this.worldEspFPS = new MaxFPSValue("world_esp_fps", this.main);
     }
 
     private void addGroup(ValueGroup valueGroup) {

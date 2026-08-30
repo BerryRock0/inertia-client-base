@@ -1,20 +1,16 @@
 package com.inertiaclient.base.utils;
 
 import com.inertiaclient.base.InertiaBase;
-import com.inertiaclient.base.mixin.custominterfaces.BlockEntityRenderDispatcherInterface;
 import com.inertiaclient.base.mixin.mixins.accessors.FrustumAccessor;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.renderpearl.api.pipeline.*;
 import lombok.Getter;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +45,8 @@ public class WorldRenderUtils {//3d render utils
     //}
 
     public static final RenderPipeline DEBUG_TRIANGLE_FAN_PIPELINE = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET).withLocation("pipeline/debug_triangle_fan_inertia").withCull(false).withDepthStencilState(Optional.empty()).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR).withPrimitiveTopology(PrimitiveTopology.TRIANGLE_STRIP).build());
-    private static final RenderType DEBUG_TRIANGLE_FAN = RenderType.create("debug_triangle_fan_inertia", RenderSetup.builder(DEBUG_TRIANGLE_FAN_PIPELINE).createRenderSetup());
+    public static final RenderType DEBUG_TRIANGLE_FAN = RenderType.create("debug_triangle_fan_inertia", RenderSetup.builder(DEBUG_TRIANGLE_FAN_PIPELINE).createRenderSetup());
+    public static final RenderType DEBUG_TRIANGLE_FAN_OUTLINE = RenderType.create("debug_triangle_fan_outline_inertia", RenderSetup.builder(DEBUG_TRIANGLE_FAN_PIPELINE).setOutline(RenderSetup.OutlineProperty.IS_OUTLINE).createRenderSetup());
 
 
     public static final RenderPipeline LINES_TRANSLUCENT_PIPELINE = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.LINES_SNIPPET).withLocation("pipeline/lines_translucent_inertia").withCull(false).withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT)).withDepthStencilState(Optional.empty()).build());
@@ -117,10 +114,10 @@ public class WorldRenderUtils {//3d render utils
         double maxY = entity.getBoundingBox().maxY - entity.getY() + renderY;
         double maxZ = entity.getBoundingBox().maxZ - entity.getZ() + renderZ;
         if (fill) {
-            renderBoxRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
+            drawBox(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
         }
         if (outline) {
-            renderOutlineRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
+            drawBoxOutline(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
         }
     }
 
@@ -137,14 +134,18 @@ public class WorldRenderUtils {//3d render utils
         double maxY = blockPos.getY() + box.maxY;
         double maxZ = blockPos.getZ() + box.maxZ;
         if (fill) {
-            renderBoxRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
+            drawBox(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.15f);
         }
         if (outline) {
-            renderOutlineRaw(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
+            drawBoxOutline(poseStack, submitNodeStorage, minX, minY, minZ, maxX, maxY, maxZ, 1.5f, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.5f);
         }
     }
 
-    public static void renderBoxRaw(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
+    public static void drawBox(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
+        drawBox(poseStack, submitNodeStorage, DEBUG_TRIANGLE_FAN, minX, minY, minZ, maxX, maxY, maxZ, red, green, blue, alpha);
+    }
+
+    public static void drawBox(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, RenderType renderType, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float red, float green, float blue, float alpha) {
         if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
             if (shouldSubtractCameraPosition()) {
                 minX -= mc.gameRenderer.mainCamera().position().x();
@@ -162,7 +163,7 @@ public class WorldRenderUtils {//3d render utils
             float finalMaxY = (float) maxY;
             float finalMaxZ = (float) maxZ;
 
-            submitNodeStorage.submitCustomGeometry(poseStack, DEBUG_TRIANGLE_FAN, (pose, buffer) -> {
+            submitNodeStorage.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
                 buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
                 buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
                 buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha);
@@ -197,7 +198,11 @@ public class WorldRenderUtils {//3d render utils
         }
     }
 
-    public static void renderOutlineRaw(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float lineWidth, float red, float green, float blue, float alpha) {
+    public static void drawBoxOutline(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float lineWidth, float red, float green, float blue, float alpha) {
+        drawBoxOutline(poseStack, submitNodeStorage, LINES_TRANSLUCENT, minX, minY, minZ, maxX, maxY, maxZ, lineWidth, red, green, blue, alpha);
+    }
+
+    public static void drawBoxOutline(PoseStack poseStack, SubmitNodeStorage submitNodeStorage, RenderType renderType, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, float lineWidth, float red, float green, float blue, float alpha) {
         if (isVisibleInFrustum(minX, minY, minZ, maxX, maxY, maxZ)) {
             if (shouldSubtractCameraPosition()) {
                 minX -= mc.gameRenderer.mainCamera().position().x();
@@ -215,7 +220,7 @@ public class WorldRenderUtils {//3d render utils
             float finalMaxY = (float) maxY;
             float finalMaxZ = (float) maxZ;
 
-            submitNodeStorage.submitCustomGeometry(poseStack, LINES_TRANSLUCENT, (pose, buffer) -> {
+            submitNodeStorage.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
                 buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
                 buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
                 buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
@@ -242,11 +247,6 @@ public class WorldRenderUtils {//3d render utils
                 buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(red, green, blue, alpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
             });
         }
-    }
-
-    //allows rendering more than 64 blocks
-    public static <S extends BlockEntityRenderState> void renderBlockEntity(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        ((BlockEntityRenderDispatcherInterface) mc.getBlockEntityRenderDispatcher()).invokeRender(state, poseStack, submitNodeCollector, camera);
     }
 
     public static Frustum getFrustum() {

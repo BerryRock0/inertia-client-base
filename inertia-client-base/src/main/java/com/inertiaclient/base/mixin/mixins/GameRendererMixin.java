@@ -1,7 +1,11 @@
 package com.inertiaclient.base.mixin.mixins;
 
+import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.event.EventManager;
+import com.inertiaclient.base.event.impl._3DCachedEvent;
 import com.inertiaclient.base.event.impl._3DEvent;
+import com.inertiaclient.base.mixin.custominterfaces.GameRendererInterface;
+import com.inertiaclient.base.render.ThreeDCacheFrameBuffer;
 import com.inertiaclient.base.render._2D3DRender;
 import com.inertiaclient.base.render.animation.AnimationValue;
 import com.inertiaclient.base.utils.opengl.CoordinateDimensionTranslator;
@@ -26,7 +30,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 @Mixin(GameRenderer.class)
-public abstract class GameRendererMixin {
+public class GameRendererMixin implements GameRendererInterface {
 
     @Unique
     private long inertia$lastFrameTime;
@@ -46,6 +50,19 @@ public abstract class GameRendererMixin {
     private FogRenderer fogRenderer;
     @Unique
     private SubmitNodeStorage inertia$3dPassStorage = new SubmitNodeStorage();
+
+    @Unique
+    private ThreeDCacheFrameBuffer inertia$3DCache = new ThreeDCacheFrameBuffer();
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void constructor(CallbackInfo callbackInfo) {
+        this.inertia$3DCache.setRenderer((poseStack, renderPassBuffer, tickDelta) -> {
+            poseStack.pushPose();
+            EventManager.fire(new _3DCachedEvent(poseStack, renderPassBuffer, tickDelta));
+            poseStack.popPose();
+        });
+        this.inertia$3DCache.setFps(() -> InertiaBase.instance.getSettings().getWorldEspFPS().getFpsForCache());
+    }
 
     @Inject(method = "extract", at = @At("HEAD"))
     public void extract(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo callbackInfo) {
@@ -80,13 +97,25 @@ public abstract class GameRendererMixin {
             RenderSystem.setShaderFog(oldFog);
         }
 
+        this.inertia$3DCache.createFrameBufferIfNeeded(InertiaBase.mc.getWindow().getWidth(), InertiaBase.mc.getWindow().getHeight(), false, true);
+        this.inertia$3DCache.drawWithRenderer(poseStack, worldPartialTicks);
+
         CoordinateDimensionTranslator.setMatrixInformation(cameraState.viewRotationMatrix, cameraState.projectionMatrix);
+
         poseStack.pushPose();
-
         _2D3DRender.render(worldPartialTicks, null, false);
-
         poseStack.popPose();
+
         modelViewStack.popMatrix();
     }
 
+    @Inject(method = "resize", at = @At("HEAD"))
+    public void resize(int width, int height, CallbackInfo ci) {
+        this.inertia$3DCache.resize(width, height);
+    }
+
+    @Override
+    public ThreeDCacheFrameBuffer get3DCachedFrameBuffer() {
+        return this.inertia$3DCache;
+    }
 }

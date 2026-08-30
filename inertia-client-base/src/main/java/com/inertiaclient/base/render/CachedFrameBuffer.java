@@ -2,6 +2,7 @@ package com.inertiaclient.base.render;
 
 import com.inertiaclient.base.render.skia.SkiaVulkanInstance;
 import com.inertiaclient.base.utils.TimerUtil;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
@@ -58,11 +59,15 @@ public class CachedFrameBuffer {
         }
     }
 
-    public void renderCachedImage(GuiGraphicsExtractor graphics) {
+    public static void blitRenderTarget(GuiGraphicsExtractor graphics, RenderTarget renderTarget, boolean flipY) {
         graphics.pose().pushMatrix();
         graphics.pose().scale(1 / SkiaVulkanInstance.getScaleFactor(), 1 / SkiaVulkanInstance.getScaleFactor());
-        graphics.innerBlit(RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA, this.framebuffer.getColorTextureView(), RenderSystem.getSamplerCache().getSampler(AddressMode.REPEAT, AddressMode.REPEAT, FilterMode.NEAREST, FilterMode.LINEAR, false), 0, 0, this.framebuffer.width, this.framebuffer.height, 0, 1, 0, 1, -1);
+        graphics.innerBlit(RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA, renderTarget.getColorTextureView(), RenderSystem.getSamplerCache().getSampler(AddressMode.REPEAT, AddressMode.REPEAT, FilterMode.NEAREST, FilterMode.LINEAR, false), 0, 0, renderTarget.width, renderTarget.height, 0, 1, flipY ? 1 : 0, flipY ? 0 : 1, -1);
         graphics.pose().popMatrix();
+    }
+
+    public void renderCachedImage(GuiGraphicsExtractor graphics) {
+        blitRenderTarget(graphics, this.framebuffer, false);
     }
 
     public boolean shouldUpdate() {
