@@ -58,7 +58,11 @@ public class GameRendererMixin implements GameRendererInterface {
     private void constructor(CallbackInfo callbackInfo) {
         this.inertia$3DCache.setRenderer((poseStack, renderPassBuffer, tickDelta) -> {
             poseStack.pushPose();
-            EventManager.fire(new _3DCachedEvent(poseStack, renderPassBuffer, tickDelta));
+            try {
+                EventManager.fire(new _3DCachedEvent(poseStack, renderPassBuffer, tickDelta));
+            } catch (Exception e) {
+                InertiaBase.LOGGER.error("Error on 3D cached event", e);
+            }
             poseStack.popPose();
         });
         this.inertia$3DCache.setFps(() -> InertiaBase.instance.getSettings().getWorldEspFPS().getFpsForCache());
@@ -81,12 +85,17 @@ public class GameRendererMixin implements GameRendererInterface {
         modelViewStack.pushMatrix();
         modelViewStack.mul(cameraState.viewRotationMatrix);
 
+        CoordinateDimensionTranslator.setMatrixInformation(cameraState.viewRotationMatrix, cameraState.projectionMatrix);
 
         PoseStack poseStack = new PoseStack();
         poseStack.pushPose();
-        EventManager.fire(new _3DEvent(poseStack, this.inertia$3dPassStorage, worldPartialTicks));
+        try {
+            EventManager.fire(new _3DEvent(poseStack, this.inertia$3dPassStorage, worldPartialTicks));
+        } catch (Exception e) {
+            InertiaBase.LOGGER.error("Error on 3D event", e);
+        }
         poseStack.popPose();
-        {
+        try {
             var oldFog = RenderSystem.getShaderFog();
             try (FeatureRenderDispatcher.PreparedFrame frame = this.featureRenderDispatcher.prepareFrame(this.inertia$3dPassStorage); RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "inertia_3d_renderpass", this.mainRenderTarget.getColorTextureView(), Optional.empty(), this.mainRenderTarget.getDepthTextureView(), OptionalDouble.empty());) {
                 RenderSystem.setShaderFog(this.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
@@ -95,12 +104,12 @@ public class GameRendererMixin implements GameRendererInterface {
                 FeatureRenderDispatcher.renderAllFeatures(renderPass, frame);
             }
             RenderSystem.setShaderFog(oldFog);
+        } catch (Exception e) {
+            InertiaBase.LOGGER.error("Error on 3d render pass", e);
         }
 
         this.inertia$3DCache.createFrameBufferIfNeeded(InertiaBase.mc.getWindow().getWidth(), InertiaBase.mc.getWindow().getHeight(), false, true);
         this.inertia$3DCache.drawWithRenderer(poseStack, worldPartialTicks);
-
-        CoordinateDimensionTranslator.setMatrixInformation(cameraState.viewRotationMatrix, cameraState.projectionMatrix);
 
         poseStack.pushPose();
         _2D3DRender.render(worldPartialTicks, null, false);

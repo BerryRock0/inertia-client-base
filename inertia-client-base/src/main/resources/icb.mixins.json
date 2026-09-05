@@ -1,12 +1,20 @@
 {
   "required": true,
   "package": "com.inertiaclient.base.mixin.mixins",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ],
+  "compatibilityLevel": "JAVA_25",
   "injectors": {
     "defaultRequire": 1
   },
+  "mixins": [
+    "accessors.FrontendGpuDeviceAccessor",
+    "accessors.FrontendGpuSurfaceAccessor",
+    "accessors.FrustumAccessor",
+    "accessors.GameRendererAccessor",
+    "accessors.GuiGraphicsExtractorAccessor",
+    "accessors.MultiPlayerGameModeAccessor",
+    "accessors.RenderTargetAccessor",
+    "accessors.VulkanGpuSurfaceAccessor"
+  ],
   "client": [
     "AbstractBlockStateMixin",
     "BlockMixin",
@@ -32,13 +40,6 @@
     "PlayerTabOverlayMixin",
     "RenderTargetMixin",
     "VulkanCommandEncoderMixin",
-    "VulkanDeviceMixin",
-    "accessors.FrontendGpuDeviceAccessor",
-    "accessors.FrontendGpuSurfaceAccessor",
-    "accessors.FrustumAccessor",
-    "accessors.GameRendererAccessor",
-    "accessors.MultiPlayerGameModeAccessor",
-    "accessors.RenderTargetAccessor",
-    "accessors.VulkanGpuSurfaceAccessor"
+    "VulkanDeviceMixin"
   ]
 }

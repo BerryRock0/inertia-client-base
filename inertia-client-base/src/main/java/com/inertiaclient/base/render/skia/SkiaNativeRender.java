@@ -2,8 +2,10 @@ package com.inertiaclient.base.render.skia;
 
 import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.mixin.custominterfaces.GuiRendererInterface;
+import com.inertiaclient.base.mixin.mixins.accessors.GameRendererAccessor;
 import com.inertiaclient.base.mixin.mixins.accessors.RenderTargetAccessor;
 import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.backend.vulkan.VulkanConst;
@@ -87,6 +89,13 @@ public class SkiaNativeRender {
             frameBuffer.resize(scaledWidth, scaledHeight);
             this.setImage();
         }
+
+        GameRendererAccessor gameRendererAccessor = (GameRendererAccessor) InertiaBase.mc.gameRenderer;
+        var oldProjectionType = RenderSystem.getProjectionType();
+        var oldProjectionMatrix = RenderSystem.getProjectionMatrixBuffer();
+        boolean oldLightmap = gameRendererAccessor.getUseUiLightmap();
+        var oldLighting = RenderSystem.getShaderLights();
+
         {
             RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(frameBuffer.getColorTexture(), this.gameRenderState.guiRenderState.clearColorOverride, frameBuffer.getDepthTexture(), 0, 0, 0, frameBuffer.width, frameBuffer.height, 0);
             gameRenderState.guiRenderState.reset();
@@ -98,11 +107,18 @@ public class SkiaNativeRender {
 
             setNativeRender.accept(graphics);
 
+            InertiaBase.mc.gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_3D);
+            gameRendererAccessor.setUseUiLightmap(true);
             guiRenderer.render();
             guiRenderer.endFrame();
             guiRendererInterface.setRenderTargetOverride(null);
             guiRendererInterface.setProjectionOverride(null);
+            gameRendererAccessor.setUseUiLightmap(oldLightmap);
+            RenderSystem.setShaderLights(oldLighting);
+
+            RenderSystem.getDynamicUniforms().writeTransform(Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix);
         }
+        RenderSystem.setProjectionMatrix(oldProjectionMatrix, oldProjectionType);
     }
 
     public void drawImageWithSkia(CanvasWrapper canvas, float x, float y) {

@@ -11,4 +11,9 @@ public interface GameRendererAccessor {
     @Accessor("fogRenderer")
     FogRenderer getFogRenderer();
 
+    @Accessor("useUiLightmap")
+    boolean getUseUiLightmap();
+
+    @Accessor("useUiLightmap")
+    void setUseUiLightmap(boolean useUiLightmap);
 }

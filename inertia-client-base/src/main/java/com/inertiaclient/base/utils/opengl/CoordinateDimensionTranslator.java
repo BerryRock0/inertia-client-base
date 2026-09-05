@@ -1,6 +1,8 @@
 package com.inertiaclient.base.utils.opengl;
 
 import com.inertiaclient.base.InertiaBase;
+import com.inertiaclient.base.mixin.mixins.accessors.GameRendererAccessor;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -89,18 +91,27 @@ public class CoordinateDimensionTranslator {
             guiRenderer = new GuiRenderer(gameRenderState.guiRenderState, featureRenderDispatcher, List.of(new GuiEntityRenderer(Minecraft.getInstance().getEntityRenderDispatcher()), new GuiSkinRenderer(), new GuiBookModelRenderer(), new GuiBannerResultRenderer(InertiaBase.mc.getAtlasManager()), new GuiProfilerChartRenderer()));
         }
 
+        GameRendererAccessor gameRendererAccessor = (GameRendererAccessor) InertiaBase.mc.gameRenderer;
         var oldProjectionMatrix = RenderSystem.getProjectionMatrixBuffer();
         var oldProjectionType = RenderSystem.getProjectionType();
+        boolean oldLightmap = gameRendererAccessor.getUseUiLightmap();
+        var oldLighting = RenderSystem.getShaderLights();
+
         gameRenderState.guiRenderState.reset();
         GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(InertiaBase.mc, gameRenderState.guiRenderState, -999, -999);
 
         runnable.accept(graphics);
 
+        InertiaBase.mc.gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_3D);
+        gameRendererAccessor.setUseUiLightmap(true);
         //this sets projection
         guiRenderer.render();
         guiRenderer.endFrame();
+        gameRendererAccessor.setUseUiLightmap(oldLightmap);
+        RenderSystem.setShaderLights(oldLighting);
 
         RenderSystem.setProjectionMatrix(oldProjectionMatrix, oldProjectionType);
+
     }
 
     public static class ScreenPosition {
