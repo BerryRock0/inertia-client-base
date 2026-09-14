@@ -7,6 +7,7 @@ import com.inertiaclient.base.render.yoga.layouts.AlignItems;
 import com.inertiaclient.base.render.yoga.layouts.FlexDirection;
 import com.inertiaclient.base.render.yoga.layouts.GapGutter;
 import com.inertiaclient.base.value.impl.NumberValue;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
@@ -33,10 +34,10 @@ public class FloatAdvancedInfo extends ValueAdvanceInfoContainer {
 
             NumberValue<Number> value = (NumberValue<Number>) this.getValue();
             buttonsContainer.addChild(GenericAdvancedInfo.createDefaultButton(this.getValue()).setTooltip(() -> String.valueOf(value.getDefaultValue())));
-            buttonsContainer.addChild(new SelectorButton(() -> "Min", () -> false, () -> {
+            buttonsContainer.addChild(new SelectorButton(Component.translatable("icb.gui.advanced_info.float.min"), () -> false, () -> {
                 value.setValue(value.getMinimumValue());
             }).setTooltip(() -> String.valueOf(value.getMinimumValue())));
-            buttonsContainer.addChild(new SelectorButton(() -> "Max", () -> false, () -> {
+            buttonsContainer.addChild(new SelectorButton(Component.translatable("icb.gui.advanced_info.float.max"), () -> false, () -> {
                 value.setValue(value.getMaximumValue());
             }).setTooltip(() -> String.valueOf(value.getMaximumValue())));
             buttonsContainer.addChild(GenericAdvancedInfo.createCopyButton(this.getValue()));

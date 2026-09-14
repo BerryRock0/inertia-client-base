@@ -24,7 +24,7 @@ public class KeyboardHandlerMixin {
         if (InertiaBase.mc.gui.screen() != null) {
             return;
         }
-        
+
         InputConstants.Key input = InputUtils.fromKeyCode(event.key());//scancode
         if (!InputUtils.isScancodePressed(SDLScancode.SDL_SCANCODE_F3)) {
             if (InertiaBase.instance.getSettings().getClickGuiSettings().getKeybind().getValue() == input) {

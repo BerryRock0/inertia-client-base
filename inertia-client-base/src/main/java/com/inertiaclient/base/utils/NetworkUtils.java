@@ -1,8 +1,8 @@
 package com.inertiaclient.base.utils;
 
 import com.inertiaclient.base.mixin.mixins.accessors.MultiPlayerGameModeAccessor;
-import net.minecraft.client.multiplayer.prediction.PredictiveAction;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.prediction.PredictiveAction;
 
 import static com.inertiaclient.base.InertiaBase.mc;
 

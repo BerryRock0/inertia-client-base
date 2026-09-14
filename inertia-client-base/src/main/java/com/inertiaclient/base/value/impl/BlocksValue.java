@@ -2,9 +2,9 @@ package com.inertiaclient.base.value.impl;
 
 import com.inertiaclient.base.value.RegistryHashsetValue;
 import com.inertiaclient.base.value.group.ValueGroup;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Collection;
 import java.util.HashSet;

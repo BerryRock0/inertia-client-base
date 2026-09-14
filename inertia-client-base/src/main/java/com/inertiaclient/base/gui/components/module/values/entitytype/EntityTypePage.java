@@ -5,10 +5,10 @@ import com.inertiaclient.base.gui.components.tabbedpage.TabbedPage;
 import com.inertiaclient.base.gui.components.tabbedpage.WrappedListContainer;
 import com.inertiaclient.base.value.impl.EntityTypeValue;
 import lombok.AllArgsConstructor;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 
 import java.util.ArrayList;
 

@@ -54,9 +54,10 @@ sourceSets {
 }
 
 configurations {
-    shadowCommon {
-        //extendsFrom implementation
+    shadowImpl {
+
     }
+    implementation.extendsFrom(shadowImpl)
 }
 
 dependencies {
@@ -84,19 +85,19 @@ dependencies {
 
     //yoga, only use the newer version of yoga, not lwjgl, hopefully nothing breaks?!?!?!
     //so we can use gap
-    implementation("org.lwjgl:lwjgl-yoga:${lwjglVersion}") {
+    shadowImpl("org.lwjgl:lwjgl-yoga:${lwjglVersion}") {
         exclude group: 'org.lwjgl', module: 'lwjgl'
     }
-    implementation("org.lwjgl:lwjgl-yoga::${lwjglNatives}") {
+    shadowImpl("org.lwjgl:lwjgl-yoga::${lwjglNatives}") {
         exclude group: 'org.lwjgl', module: 'lwjgl'
     }
 
     //requires kotlin
-    implementation "com.dorkbox:TweenEngine:9.2"
+    shadowImpl "com.dorkbox:TweenEngine:9.2"
 
-    implementation("io.github.humbleui:skija-windows-x64:${skiaVersion}")
-    implementation("io.github.humbleui:types:0.2.0")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.2")
+    shadowImpl("io.github.humbleui:skija-windows-x64:${skiaVersion}")
+    shadowImpl("io.github.humbleui:types:0.2.0")
+    shadowImpl("org.apache.httpcomponents.client5:httpclient5:5.6.2")
 }
 
 processResources {
@@ -122,6 +123,8 @@ java {
 }
 
 jar {
+    dependsOn shadowJar
+
     inputs.property "archivesName", project.base.archivesName
 
     from("LICENSE") {
@@ -140,7 +143,7 @@ shadowJar {
 
     //configurations = [project.configurations.implementation] // Include implementation dependencies
     //configurations = [project.configurations.shadow]
-    configurations = [project.configurations.shadowCommon]
+    configurations = [project.configurations.shadowImpl]
 
     //for skia, since we dont copy all the meta-inf folders/files this is missing and is needed https://github.com/HumbleUI/Skija/issues/60
     manifest {
@@ -151,12 +154,6 @@ shadowJar {
     // Relocate dependencies to avoid conflicts
     //relocate 'com.google.gson', 'my.mod.shadow.gson'
 }
-
-/*remapJar {
-    dependsOn shadowJar
-    inputFile.set(shadowJar.archiveFile)
-    //archiveFileName.set("${archivesBaseName}-${version}.jar")
-}*/
 
 
 // configure the maven publication

@@ -7,6 +7,7 @@ import com.inertiaclient.base.render.yoga.layouts.*;
 import com.inertiaclient.base.value.impl.EntityTypeValue;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
@@ -37,10 +38,10 @@ public class SpawnGroupContainer extends YogaNode {
             bottom.styleSetFlexShrink(0);
             bottom.styleSetJustifyContent(JustifyContent.CENTER);
             bottom.styleSetGap(GapGutter.COLUMN, 5);
-            bottom.addChild(new SelectorButton(() -> "Select All", () -> false, () -> {
+            bottom.addChild(new SelectorButton(Component.translatable("icb.gui.pages.entities.select_all"), () -> false, () -> {
                 entityTypeValue.addAllInGroup(spawnGroup);
             }));
-            bottom.addChild(new SelectorButton(() -> "Deselect All", () -> false, () -> {
+            bottom.addChild(new SelectorButton(Component.translatable("icb.gui.pages.entities.deselect_all"), () -> false, () -> {
                 entityTypeValue.removeAllInGroup(spawnGroup);
             }));
             this.addChild(bottom);

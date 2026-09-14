@@ -2,6 +2,7 @@ package com.inertiaclient.base.gui.components.module.values.entitycolor;
 
 import com.inertiaclient.base.gui.ModernClickGui;
 import com.inertiaclient.base.gui.components.MainFrame;
+import com.inertiaclient.base.gui.components.TextLabel;
 import com.inertiaclient.base.gui.components.module.values.color.ColorContainer;
 import com.inertiaclient.base.gui.components.module.values.color.ColorContainerInterface;
 import com.inertiaclient.base.gui.components.module.values.entitytype.EntityTypeComponent;
@@ -64,7 +65,9 @@ public class EntityTypeColorComponent extends YogaNode {
         right.styleSetFlexDirection(FlexDirection.COLUMN);
         this.addChild(right);
 
-        right.addChild(new NameLabel(() -> entityType.getDescription().getString(), this));
+        var label = new TextLabel(entityType.getDescription());
+        label.setFontSize(() -> 8f).setColor(() -> this.shouldShowHoveredEffects() ? MainFrame.s_selectedTextColor.get() : MainFrame.s_unselectedTextColor.get());
+        right.addChild(label);
 
         {
             YogaNode linkComponent = new YogaNode();
@@ -80,7 +83,7 @@ public class EntityTypeColorComponent extends YogaNode {
 
                 if (isLinked) {
                     var linkedToText = CanvasWrapper.getFreshTextBuilder();
-                    linkedToText.basic(Component.translatable("icb.gui.pages.entitycolor.linked_to", entityType.getCategory().getName()), 0, 8, this.isHoveredAndInsideParent(globalMouseX, globalMouseY) ? MainFrame.s_selectedTextColor.get() : MainFrame.s_unselectedTextColor.get());
+                    linkedToText.basic(Component.translatable("icb.gui.pages.entitycolor.linked_to", entityType.getCategory().getName()), 0, 8, this.shouldShowHoveredEffects() ? MainFrame.s_selectedTextColor.get() : MainFrame.s_unselectedTextColor.get());
                     linkedToText.setFontSize(4);
                     linkedToText.draw(canvas);
                 }

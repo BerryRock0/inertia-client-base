@@ -23,7 +23,7 @@ public class BlockEntityColorsPage extends WrappedListContainer {
             container.setHoverCursorToIndicateClick();
             this.getListNode().addChild(container);
 
-            Block blockForBlockEntity = BlockEntityTypePage.getBlockFromBlockEntity(blockEntityType);
+            Block blockForBlockEntity = BlockEntityTypePage.getDisplayBlockForBlockEntity(blockEntityType);
             var blockComponent = new ItemRenderComponent(blockForBlockEntity.asItem());
             container.addChild(blockComponent);
             container.addChild(new ColorDisplay(blockEntityColorValue, blockEntityType));

@@ -8,6 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +17,7 @@ public class BlockEntityTypePage extends HashsetPage<BlockEntityType<?>> {
 
     public BlockEntityTypePage(HashsetValue<BlockEntityType<?>> hashsetValue) {
         super(hashsetValue, blockEntityType -> {
-            Block blockForBlockEntity = BlockEntityTypePage.getBlockFromBlockEntity(blockEntityType);
+            Block blockForBlockEntity = BlockEntityTypePage.getDisplayBlockForBlockEntity(blockEntityType);
             String id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType).toLanguageKey();
             var blockComponent = new ItemRenderComponent(blockForBlockEntity.asItem());
 
@@ -26,7 +27,36 @@ public class BlockEntityTypePage extends HashsetPage<BlockEntityType<?>> {
         });
     }
 
-    public static Block getBlockFromBlockEntity(BlockEntityType<?> blockEntityType) {
+    public static Block getDisplayBlockForBlockEntity(BlockEntityType<?> blockEntityType) {
+        //few overrides, the Sets don't keep order, I don't want chest to be a copper chest, a sign to be a random sign
+        if (blockEntityType == BlockEntityTypes.CHEST) {
+            return Blocks.CHEST;
+        }
+        if (blockEntityType == BlockEntityTypes.SIGN) {
+            return Blocks.OAK_SIGN;
+        }
+        if (blockEntityType == BlockEntityTypes.HANGING_SIGN) {
+            return Blocks.OAK_HANGING_SIGN;
+        }
+        if (blockEntityType == BlockEntityTypes.SKULL) {
+            return Blocks.SKELETON_SKULL;
+        }
+        if (blockEntityType == BlockEntityTypes.SHELF) {
+            return Blocks.OAK_SHELF;
+        }
+        if (blockEntityType == BlockEntityTypes.COPPER_GOLEM_STATUE) {
+            return Blocks.COPPER_GOLEM_STATUE.weathering().unaffected();
+        }
+        if (blockEntityType == BlockEntityTypes.BANNER) {
+            return Blocks.BANNER.white();
+        }
+        if (blockEntityType == BlockEntityTypes.SHULKER_BOX) {
+            return Blocks.SHULKER_BOX;
+        }
+        if (blockEntityType == BlockEntityTypes.CAMPFIRE) {
+            return Blocks.CAMPFIRE;
+        }
+
         Set<Block> blocks = ((BlockEntityTypeAccessor) blockEntityType).getBlocks();
         Optional<Block> blockToRender = blocks.stream().findFirst();
         if (!blockToRender.isEmpty()) {

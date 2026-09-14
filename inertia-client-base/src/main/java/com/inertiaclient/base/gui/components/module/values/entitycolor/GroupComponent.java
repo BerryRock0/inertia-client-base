@@ -1,6 +1,8 @@
 package com.inertiaclient.base.gui.components.module.values.entitycolor;
 
 import com.inertiaclient.base.gui.ModernClickGui;
+import com.inertiaclient.base.gui.components.MainFrame;
+import com.inertiaclient.base.gui.components.TextLabel;
 import com.inertiaclient.base.gui.components.module.values.color.ColorContainer;
 import com.inertiaclient.base.gui.components.module.values.color.ColorContainerInterface;
 import com.inertiaclient.base.render.skia.SkiaUtils;
@@ -10,6 +12,7 @@ import com.inertiaclient.base.render.yoga.layouts.AlignItems;
 import com.inertiaclient.base.render.yoga.layouts.GapGutter;
 import com.inertiaclient.base.value.WrappedColor;
 import com.inertiaclient.base.value.impl.EntityTypeColorValue;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.MobCategory;
 
 import java.awt.Color;
@@ -17,7 +20,7 @@ import java.awt.Color;
 public class GroupComponent extends YogaNode {
 
     public GroupComponent(EntityTypeColorValue entityTypeColorValue, MobCategory spawnGroup) {
-        this.setSearchContext(spawnGroup.getName() + " color");
+        this.setSearchContext(Component.translatable("icb.gui.pages.entitycolor.spawn_group_color_label", spawnGroup.name()).getString());
         this.styleSetHeight(12);
         this.styleSetAlignItems(AlignItems.CENTER);
         this.styleSetGap(GapGutter.COLUMN, 5);
@@ -58,7 +61,11 @@ public class GroupComponent extends YogaNode {
                 canvas.drawRect(0, 0, colorDisplay.getWidth(), colorDisplay.getHeight(), stroke);
             }
         });
-        this.addChild(new NameLabel(() -> spawnGroup.getName() + " color", this));
+
+        var label = new TextLabel(Component.translatable("icb.gui.pages.entitycolor.spawn_group_color_label", spawnGroup.getName()));
+        label.setFontSize(() -> 8f).setColor(() -> this.shouldShowHoveredEffects() ? MainFrame.s_selectedTextColor.get() : MainFrame.s_unselectedTextColor.get());
+
+        this.addChild(label);
 
     }
 

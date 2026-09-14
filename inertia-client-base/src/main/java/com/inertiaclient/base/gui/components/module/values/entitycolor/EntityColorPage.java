@@ -5,8 +5,8 @@ import com.inertiaclient.base.render.yoga.YogaNode;
 import com.inertiaclient.base.render.yoga.layouts.*;
 import com.inertiaclient.base.value.impl.EntityTypeColorValue;
 import lombok.Getter;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.MobCategory;
 
 public class EntityColorPage extends YogaNode {
 

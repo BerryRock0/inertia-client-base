@@ -2,9 +2,9 @@ package com.inertiaclient.base.gui.components.module.values.entitycolor;
 
 import com.inertiaclient.base.render.yoga.YogaNode;
 import com.inertiaclient.base.render.yoga.layouts.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.core.registries.BuiltInRegistries;
 
 public class SpawnGroupContainer extends YogaNode {
 

@@ -50,13 +50,13 @@ public class GenericAdvancedInfo extends ValueAdvanceInfoContainer {
     }
 
     public static SelectorButton createDefaultButton(Value value) {
-        return new SelectorButton(() -> "Default", () -> false, () -> {
+        return new SelectorButton(Component.translatable("icb.gui.advanced_info.generic.default"), () -> false, () -> {
             value.setValue(value.getDefaultValue());
         });
     }
 
     public static SelectorButton createCopyButton(Value value) {
-        return new SelectorButton(() -> "Copy", () -> false, () -> {
+        return new SelectorButton(Component.translatable("icb.gui.advanced_info.generic.copy"), () -> false, () -> {
             try {
                 String json = InertiaBase.instance.getFileManager().getNormalGson().toJson(value.toJson());
                 Minecraft.getInstance().keyboardHandler.setClipboard(json);
@@ -69,7 +69,7 @@ public class GenericAdvancedInfo extends ValueAdvanceInfoContainer {
     }
 
     public static SelectorButton createPasteButton(Value value) {
-        return new SelectorButton(() -> "Paste", () -> false, () -> {
+        return new SelectorButton(Component.translatable("icb.gui.advanced_info.generic.paste"), () -> false, () -> {
             try {
                 String clipboardText = Minecraft.getInstance().keyboardHandler.getClipboard();
                 JsonElement fromClipboard = JsonParser.parseString(clipboardText);

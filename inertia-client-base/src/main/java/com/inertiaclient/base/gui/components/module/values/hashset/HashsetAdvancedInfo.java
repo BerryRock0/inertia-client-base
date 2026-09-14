@@ -8,6 +8,7 @@ import com.inertiaclient.base.render.yoga.layouts.AlignItems;
 import com.inertiaclient.base.render.yoga.layouts.FlexDirection;
 import com.inertiaclient.base.render.yoga.layouts.GapGutter;
 import com.inertiaclient.base.value.HashsetValue;
+import net.minecraft.network.chat.Component;
 
 import java.util.HashSet;
 import java.util.function.Supplier;
@@ -33,7 +34,7 @@ public class HashsetAdvancedInfo extends ValueAdvanceInfoContainer {
 
             HashsetValue value = (HashsetValue) this.getValue();
             buttonsContainer.addChild(GenericAdvancedInfo.createDefaultButton(this.getValue()));
-            buttonsContainer.addChild(new SelectorButton(() -> "Remove all", () -> false, () -> {
+            buttonsContainer.addChild(new SelectorButton(Component.translatable("icb.gui.advanced_info.hashset.remove_all"), () -> false, () -> {
                 ((HashSet) value.getValue()).clear();
             }));
             buttonsContainer.addChild(GenericAdvancedInfo.createCopyButton(this.getValue()));

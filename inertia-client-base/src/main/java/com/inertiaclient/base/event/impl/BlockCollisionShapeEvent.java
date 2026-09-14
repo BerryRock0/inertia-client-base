@@ -2,11 +2,11 @@ package com.inertiaclient.base.event.impl;
 
 import com.inertiaclient.base.event.Event;
 import lombok.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
 
 @RequiredArgsConstructor
 public class BlockCollisionShapeEvent extends Event {

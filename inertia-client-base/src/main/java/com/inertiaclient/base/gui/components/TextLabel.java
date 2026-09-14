@@ -63,7 +63,7 @@ public class TextLabel extends YogaNode {
             var textBuilder = CanvasWrapper.getFreshTextBuilder();
             textBuilder.setText(this.cachedLabel);
             textBuilder.setFontSize(this.cachedFontSize);
-            
+
             if (scrollWidth != null) {
                 float stringWidth = textBuilder.getTextWidth();
                 boolean shouldScroll = stringWidth > (this.cachedScrollWidth = this.scrollWidth.get());

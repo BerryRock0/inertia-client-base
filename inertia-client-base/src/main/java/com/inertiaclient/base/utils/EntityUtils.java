@@ -2,11 +2,11 @@ package com.inertiaclient.base.utils;
 
 import com.inertiaclient.base.InertiaBase;
 import com.inertiaclient.base.value.impl.EntityTypeValue;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Comparator;
 

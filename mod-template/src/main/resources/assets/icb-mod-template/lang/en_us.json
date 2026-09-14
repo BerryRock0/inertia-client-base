@@ -1,4 +1,8 @@
 {
   "icb.module.auto_respawn.name": "Auto Respawn",
-  "icb.module.auto_respawn.description": "Automatically respawns when you die"
+  "icb.module.auto_respawn.description": "Automatically respawns when you die",
+  "icb.module.better_selection.name": "Better Selection",
+  "icb.module.better_selection.description": "Draws a colorful box at your cross hair target",
+  "icb.module.better_selection.groups.main.value.color.name": "Color",
+  "icb.module.better_selection.groups.main.value.color.description": "The color of the box"
 }
