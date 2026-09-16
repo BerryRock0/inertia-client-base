@@ -22,6 +22,9 @@ public abstract class InertiaMod {
     @Getter
     @Setter(AccessLevel.PROTECTED)
     private String id;
+    @Getter
+    @Setter(AccessLevel.PROTECTED)
+    private String version;
 
     public abstract void initialize();
 

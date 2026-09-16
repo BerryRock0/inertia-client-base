@@ -4,11 +4,13 @@ plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta6'
 }
 
-version = project.icb_mod_version
+version = project.mod_version
 group = project.maven_group
 
+def javaVersion = 25;
+
 base {
-    archivesName = project.icb_archives_base_name
+    archivesName = project.archives_base_name
 }
 
 loom {
@@ -101,15 +103,22 @@ dependencies {
 }
 
 processResources {
+    //replaces last - with a ., so 26.3 is 26.3, 26.3-pre-2 is 26.3-pre.2
+    def formattedMinecraftVersion = project.minecraft_version.toString().replaceFirst(/-(?=[^-]*$)/, ".");
+
     inputs.property "version", project.version
+    inputs.property "minecraft_version", formattedMinecraftVersion
+    inputs.property "java_version", javaVersion
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand("version": project.version,
+                "minecraft_version": formattedMinecraftVersion,
+                "java_version": javaVersion.toString())
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
+    it.options.release = javaVersion
 }
 
 java {
@@ -118,8 +127,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
 jar {

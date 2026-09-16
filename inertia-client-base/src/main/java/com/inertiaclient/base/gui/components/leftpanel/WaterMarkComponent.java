@@ -10,16 +10,21 @@ public class WaterMarkComponent extends YogaNode {
     public WaterMarkComponent() {
         this.styleSetHeight(TopPanel.topPanelHeight);
 
+        var inertiaClientMod = InertiaBase.instance.getModLoader().getMods().stream().filter(inertiaMod -> inertiaMod.getId().equals("inertiaclient")).findFirst();
+
+        final String name = inertiaClientMod.isEmpty() ? InertiaBase.CLIENT_NAME : "Inertia";
+        final String version = inertiaClientMod.isEmpty() ? InertiaBase.VERSION : inertiaClientMod.get().getVersion();
+
         this.setRenderCallback((context, globalMouseX, globalMouseY, relativeMouseX, relativeMouseY, delta, canvas) -> {
             var inertiaTextBuilder = CanvasWrapper.getFreshTextBuilder();
-            inertiaTextBuilder.basic(InertiaBase.CLIENT_NAME, this.getWidth() / 2, this.getHeight() / 2 - 2);
+            inertiaTextBuilder.basic(name, this.getWidth() / 2, this.getHeight() / 2 - 2);
             inertiaTextBuilder.setFontSize(14);
             inertiaTextBuilder.setHorizontalAlignment(CanvasWrapper.TextBuilder.HorizontalAlignment.CENTER);
             inertiaTextBuilder.setVerticalAlignment(CanvasWrapper.TextBuilder.VerticalAlignment.MIDDLE);
             inertiaTextBuilder.draw(canvas);
 
             var versionTextBuilder = CanvasWrapper.getFreshTextBuilder();
-            versionTextBuilder.basic(InertiaBase.VERSION, this.getWidth() / 2, this.getHeight() / 2 + 7).setFontSize(8);
+            versionTextBuilder.basic(version, this.getWidth() / 2, this.getHeight() / 2 + 7).setFontSize(8);
             versionTextBuilder.setHorizontalAlignment(CanvasWrapper.TextBuilder.HorizontalAlignment.CENTER);
             versionTextBuilder.setVerticalAlignment(CanvasWrapper.TextBuilder.VerticalAlignment.MIDDLE);
             versionTextBuilder.draw(canvas);

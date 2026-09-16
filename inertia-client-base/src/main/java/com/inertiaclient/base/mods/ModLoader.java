@@ -7,8 +7,7 @@ import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import java.util.ArrayList;
 
 public class ModLoader {
-
-
+    
     @Getter
     private ArrayList<InertiaMod> mods = new ArrayList<>();
 
@@ -18,6 +17,7 @@ public class ModLoader {
 
             mod.setName(entrypoint.getProvider().getMetadata().getName());
             mod.setId(entrypoint.getProvider().getMetadata().getId());
+            mod.setVersion(entrypoint.getProvider().getMetadata().getVersion().getFriendlyString());
             mods.add(mod);
         }
     }

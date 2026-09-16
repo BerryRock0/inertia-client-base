@@ -4,11 +4,13 @@ plugins {
     id 'com.gradleup.shadow' version '9.0.0-beta6'
 }
 
-version = project.mt_mod_version
+version = project.mod_version
 group = project.maven_group
 
+def javaVersion = 25;
+
 base {
-    archivesName = project.mt_archives_base_name
+    archivesName = project.archives_base_name
 }
 
 repositories {
@@ -106,7 +108,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
+    it.options.release = javaVersion
 }
 
 java {
@@ -115,8 +117,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
 jar {

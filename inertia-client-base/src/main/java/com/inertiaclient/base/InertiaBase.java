@@ -11,6 +11,7 @@ import com.inertiaclient.base.utils.LibraryDownloader;
 import com.inertiaclient.base.utils.TickRateCalculator;
 import lombok.Getter;
 import lombok.Setter;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.*;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -30,8 +31,8 @@ import java.util.function.Function;
 
 public class InertiaBase {
 
-    public static final String CLIENT_NAME = "Inertia";
-    public static final String VERSION = "0.0.1";
+    public static final String CLIENT_NAME = "ICB";
+    public static final String VERSION;
     public static final String MINECRAFT_VERSION = "1.21.4";//basically equal to SharedConstants.getGameVersion().getName()?
     public static final Minecraft mc = Minecraft.getInstance();
     public static final InertiaBase instance = new InertiaBase();
@@ -157,4 +158,15 @@ public class InertiaBase {
     public static String getUserAgentForURL(URI uri) {
         return "icb Version " + InertiaBase.VERSION + " " + uri.getHost() + uri.getPath();
     }
+
+    static {
+        var icbFabricMod = FabricLoader.getInstance().getModContainer("icb");
+        if (icbFabricMod.isPresent()) {
+            VERSION = icbFabricMod.get().getMetadata().getVersion().getFriendlyString();
+        } else {
+            VERSION = "unknown";
+            LOGGER.warn("Failed to get ICB version from fabric.mod.json, this shouldn't happen");
+        }
+    }
+
 }

@@ -30,7 +30,7 @@ import java.util.Optional;
 
 import static com.inertiaclient.base.InertiaBase.mc;
 
-public class WorldRenderUtils {//3d render utils
+public class WorldRenderUtils {
 
     public static final AABB FULL_BOX = new AABB(0, 0, 0, 1, 1, 1);
 
@@ -412,31 +412,34 @@ public class WorldRenderUtils {//3d render utils
                     int finalBlue = this.outlineBlue;
                     int finalAlpha = this.outlineAlpha;
 
+                    float lineWidth = this.outlineLineWidth;
+                    ;
+
                     submitNodeStorage.submitCustomGeometry(poseStack, this.outlineRenderType, (pose, buffer) -> {
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
-                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(this.outlineLineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMinX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMinY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMinZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+                        buffer.addVertex(pose, finalMaxX, finalMaxY, finalMaxZ).setColor(finalRed, finalGreen, finalBlue, finalAlpha).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
                     });
                 }
             }
