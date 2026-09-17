@@ -20,17 +20,22 @@ public class BlockEntityColorsPage extends WrappedListContainer {
         for (BlockEntityType<?> blockEntityType : BuiltInRegistries.BLOCK_ENTITY_TYPE.stream().toList()) {
 
             YogaNode container = new YogaNode();
-            container.setHoverCursorToIndicateClick();
             this.getListNode().addChild(container);
+            container.setHoverCursorToIndicateClick();
+            String id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType).toLanguageKey();
+            container.setSearchContext(id);
+            container.setTooltip(() -> id);
+            container.setTooltipDelay(() -> 0L);
 
             Block blockForBlockEntity = BlockEntityTypePage.getDisplayBlockForBlockEntity(blockEntityType);
             var blockComponent = new ItemRenderComponent(blockForBlockEntity.asItem());
             container.addChild(blockComponent);
             container.addChild(new ColorDisplay(blockEntityColorValue, blockEntityType));
 
-            String id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntityType).toLanguageKey();
-            blockComponent.setSearchContext(id);
-            blockComponent.setTooltip(() -> id);
+            //dont use the displayed block/item tool tip
+            blockComponent.setTooltip(null);
+
+
             blockComponent.setReleaseClickCallback((relativeMouseX, relativeMouseY, button, clickType) -> {
                 if (button == ButtonIdentifier.LEFT) {
                     ModernClickGui.MODERN_CLICK_GUI.getRoot().addChild(new ColorContainer(blockEntityColorValue.getColorForBlockEntity(blockEntityType), new ColorContainerInterface() {

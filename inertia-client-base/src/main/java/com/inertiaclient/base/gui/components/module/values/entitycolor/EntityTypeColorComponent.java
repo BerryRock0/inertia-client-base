@@ -115,7 +115,14 @@ public class EntityTypeColorComponent extends YogaNode {
 
                     @Override
                     public WrappedColor getDefault() {
-                        return spawnGroupColor;
+                        //if its linked  by default,  use default spawn group color, if its not linked by default, use the non linked default color
+                        if (!entityTypeColorValue.getDefaultValue().isLinked(entityType)) {
+                            return entityTypeColorValue.getDefaultValue().getIndividualColor(entityType);
+                        }
+
+                        return entityTypeColorValue.getDefaultValue().getSpawnGroupColor(entityType.getCategory());
+                        //returns the current spawn group color, but we are unlinking the entity type, so we resort to the default spawn group color, rather then the current spawn group color
+                        //return spawnGroupColor;
                     }
 
                     @Override

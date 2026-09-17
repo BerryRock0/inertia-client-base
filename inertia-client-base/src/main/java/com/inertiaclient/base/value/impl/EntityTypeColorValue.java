@@ -84,16 +84,18 @@ public class EntityTypeColorValue extends Value<EntityTypeColorValue.EntitiesCol
         });
     }
 
+
     public static EntitiesColorWrapper getDefaultColors() {
         var color = new EntitiesColorWrapper();
-        color.setPassiveColor(new WrappedColor(Color.green));
-        color.setHostileColor(new WrappedColor(new Color(255, 255, 0)));
-        color.setEntityColor(EntityTypes.PLAYER, new WrappedColor(new Color(255, 0, 0)));
-        color.setEntityColor(EntityTypes.ITEM, new WrappedColor(new Color(0, 255, 255), true));
-        color.setEntityColor(EntityTypes.END_CRYSTAL, new WrappedColor(new Color(255, 0, 196)));
+        color.setPassiveColor(new WrappedColor(new Color(0, 214, 43)));
+        color.setHostileColor(new WrappedColor(new Color(242, 222, 0)));
+        color.setEntityColor(EntityTypes.PLAYER, new WrappedColor(new Color(255, 72, 55)));
+        color.setEntityColor(EntityTypes.ITEM, new WrappedColor(new Color(0, 210, 247), true));
+        color.setEntityColor(EntityTypes.END_CRYSTAL, new WrappedColor(new Color(255, 61, 231)));
 
         return color;
     }
+
 
     public static class EntitiesColorWrapper {
 

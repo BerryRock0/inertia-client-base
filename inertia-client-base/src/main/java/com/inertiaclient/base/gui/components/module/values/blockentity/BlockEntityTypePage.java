@@ -56,6 +56,12 @@ public class BlockEntityTypePage extends HashsetPage<BlockEntityType<?>> {
         if (blockEntityType == BlockEntityTypes.CAMPFIRE) {
             return Blocks.CAMPFIRE;
         }
+        if (blockEntityType == BlockEntityTypes.COMMAND_BLOCK) {
+            return Blocks.COMMAND_BLOCK;
+        }
+        if (blockEntityType == BlockEntityTypes.BRUSHABLE_BLOCK) {
+            return Blocks.SUSPICIOUS_SAND;
+        }
 
         Set<Block> blocks = ((BlockEntityTypeAccessor) blockEntityType).getBlocks();
         Optional<Block> blockToRender = blocks.stream().findFirst();

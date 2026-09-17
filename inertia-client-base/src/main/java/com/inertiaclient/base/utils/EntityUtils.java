@@ -26,7 +26,7 @@ public class EntityUtils {
         return getDistanceToPositionNoY(blockEntity.getBlockPos().getX() + .5f, blockEntity.getBlockPos().getZ() + .5f);
     }
 
-    public static boolean isPlayer(Entity entity) {
+    public static boolean isLocalPlayer(Entity entity) {
         if (entity instanceof LocalPlayer) {
             return true;
         }

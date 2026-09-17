@@ -52,6 +52,7 @@ public class YogaNode {
                 this.lastVisible = false;
             }
         }
+
         return valid;
     }
 
