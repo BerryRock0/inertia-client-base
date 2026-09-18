@@ -34,9 +34,6 @@ public class FileManager {
     private boolean mostLikelyFirstTimeLoading;
 
     @Getter
-    private SkinCache skinCache;
-
-    @Getter
     private QueueSave moduleQueuedSave = new QueueSave(() -> {
         this.saveModulesJson();
         InertiaBase.LOGGER.info("saved module json");
@@ -65,16 +62,6 @@ public class FileManager {
 
         this.librariesDirectory = this.getGameFolder("Libraries");
         this.configsDirectory = this.getGameFolder("Configs");
-
-        Path skinHeadCache = this.getGameFolder("Skin Cache").resolve("Heads");
-        if (Files.notExists(skinHeadCache)) {
-            try {
-                Files.createDirectories(skinHeadCache);
-            } catch (IOException e) {
-                InertiaBase.LOGGER.error("Failed to create Skin Cache Heads folder");
-            }
-        }
-        this.skinCache = new SkinCache(skinHeadCache);
 
         EventManager.register(this);
     }
