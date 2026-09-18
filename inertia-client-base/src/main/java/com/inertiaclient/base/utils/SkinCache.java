@@ -52,15 +52,4 @@ public class SkinCache {
         cache.put(uuidOrName, future);
         return future;
     }
-
-    private byte[] download(String urlString) {
-        return InertiaBase.createWebRequest(urlString, closeableHttpResponse -> {
-            try {
-                return EntityUtils.toByteArray(closeableHttpResponse.getEntity());
-            } catch (IOException e) {
-                return null;
-            }
-        });
-
-    }
 }
